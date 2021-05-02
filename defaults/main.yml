@@ -59,18 +59,15 @@ monasca_pip_install_args: "{{ pip_install_options | default('') }}"
 
 # Name of the virtual env to deploy into
 monasca_venv_tag: "{{ venv_tag | default('untagged') }}"
-#glance_bin farkli tanimlanmis, saharada da boyle ama
 monasca_bin: "/openstack/venvs/monasca-{{ monasca_venv_tag }}/bin"
 
 # Set the etc dir path where monasca is installed.
 #  This is used for role access to the db migrations.
 #  Example:
 #  monasca_etc_dir: "/usr/local/etc/monasca"
-#glance_etc_dir farkli
 monasca_etc_dir: "{{ monasca_bin | dirname }}/etc/monasca"
 
 # Enable/Disable Ceilometer
-# gerek var mi? satir 109'a kadar olan kisima
 monasca_ceilometer_enabled: False
 
 monasca_profiler_enabled: False
