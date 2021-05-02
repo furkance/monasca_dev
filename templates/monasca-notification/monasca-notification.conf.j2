@@ -1,0 +1,21 @@
+[DEFAULT]
+
+[kafka]
+legacy_kafka_client_enabled = false
+url = {{ monasca_kafka_hosts }}
+
+[database]
+repo_driver = monasca_notification.common.repositories.mysql.mysql_repo:MysqlRepo
+
+[email_notifier]
+grafana_url = {{ monasca_grafana_hosts }}
+
+[keystone]
+auth_url = {{ keystone_service_adminuri }}
+
+[mysql]
+db = {{ monasca_galera_database }}
+passwd = {{ monasca_container_mysql_password }}
+user = {{ monasca_galera_user }}
+host = {{ monasca_galera_address }}
+
