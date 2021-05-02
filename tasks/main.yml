@@ -53,9 +53,6 @@
     venv_install_distro_package_list: "{{ monasca_distro_packages }}"
     venv_pip_install_args: "{{ monasca_pip_install_args }}"
     venv_pip_packages: "{{ monasca_pip_packages }}"
-#    venv_pip_packages: >-
-#      "{{ monasca_pip_packages |
-#            union(monasca_user_pip_packages)}}"
     venv_facts_when_changed:
       - section: "monasca"
         option: "venv_tag"
