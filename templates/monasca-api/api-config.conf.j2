@@ -26,13 +26,16 @@ healthchecks = monasca_api.healthchecks:HealthChecks
 
 [security]
 # The roles that are allowed full access to the API.
-default_authorized_roles = {{ monasca_user_roles | join(', ') }}
+#default_authorized_roles = {{ monasca_user_roles }}
+default_authorized_roles = admin
 
 # The roles that are allowed to only POST metrics to the API. This role would be used by the Monasca Agent.
-agent_authorized_roles = {{ monasca_agent_roles | join(', ') }}
+#agent_authorized_roles = {{ monasca_agent_roles }}
+agent_authorized_roles = admin
 
 # The roles that are allowed to only GET metrics from the API.
-read_only_authorized_roles = {{ monasca_read_only_user_roles | join(', ') }}
+#read_only_authorized_roles = {{ monasca_read_only_user_roles }}
+read_only_authorized_roles = admin
 
 # The roles that are allowed to access the API on behalf of another tenant.
 # For example, a service can POST metrics to another tenant if they are a member of the "delegate" role.

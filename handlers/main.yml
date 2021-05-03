@@ -26,16 +26,43 @@
    - dir: "monasca-thresh/thresh"
      action: "package"
 
+#- name: Create monasca database schema
+#  community.mysql.mysql_db:
+#    login_host: "{{ monasca_galera_address }}"
+#    login_user: "{{ monasca_galera_user }}"
+#    login_password: "{{ monasca_container_mysql_password }}"
+#    name: "{{ monasca_galera_database }}"
+#    state: import
+#    target: "/opt/mon_mysql.sql"
+#  delegate_to: "{{ monasca_db_setup_host }}"
+#  no_log: True
+
+#delegate_to: "{{ _oslodb_setup_host }}"
+#  vars:
+#    ansible_python_interpreter: "{{ _oslodb_ansible_python_interpreter }}"
+
+
+
 - name: Create monasca database schema
-  mysql_db:
-    login_host: "{{ monasca_galera_address }}"
+  community.mysql.mysql_db:
+    login_host: "{{ _oslodb_setup_endpoint | default(omit) }}"
+    login_port: "{{ _oslodb_setup_port | default(omit) }}"
     login_user: "{{ monasca_galera_user }}"
     login_password: "{{ monasca_container_mysql_password }}"
     name: "{{ monasca_galera_database }}"
     state: import
     target: "/opt/mon_mysql.sql"
-  delegate_to: "{{ monasca_db_setup_host }}"
-  no_log: True
+  delegate_to: "{{ _oslodb_setup_host }}"
+#  vars:
+#    ansible_python_interpreter: "{{ _oslodb_ansible_python_interpreter }}"
+#  no_log: True
+
+#- name: Create database for service
+#      community.mysql.mysql_db:
+#        name: "{{ item.name }}"
+#        login_host: "{{ _oslodb_setup_endpoint | default(omit) }}"
+#        login_port: "{{ _oslodb_setup_port | default(omit) }}"
+#      loop: "{{ _oslodb_databases }}"
 
 - name: Restart monasca services
   service:

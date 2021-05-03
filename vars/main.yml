@@ -18,6 +18,10 @@
 # the host is in the host group and the service is enabled.
 # The service list is provided in the defined start order.
 #
+
+_monasca_is_first_play_host: "{{ (monasca_services['monasca-api']['group'] in group_names and inventory_hostname == (groups[monasca_services['monasca-api']['group']] | intersect(ansible_play_hosts)) | first) | bool }}"
+
+
 filtered_monasca_services: |-
   {% set services = [] %}
   {% for key, value in monasca_services.items() %}
@@ -38,16 +42,37 @@ uwsgi_monasca_services: |-
          (('condition' not in value) or ('condition' in value and value['condition']))
          and ('wsgi_app' in value and value['wsgi_app']) %}
   {%     set _ = value.update(
-           {
+            {
              'wsgi_path':  monasca_bin ~ '/' ~ value.wsgi_name,
-             'wsgi_venv': ((monasca_install_method == 'source') | ternary(monasca_bin | dirname, None)),
+             'wsgi_venv': monasca_bin | dirname,
              'uwsgi_uid': monasca_system_user_name,
              'uwsgi_guid': monasca_system_group_name,
              'uwsgi_processes': monasca_wsgi_processes,
-             'uwsgi_threads': monasca_wsgi_threads,
+             'uwsgi_threads': monasca_wsgi_threads
            }
          ) %}
   {%     set _ = services.update({key: value}) %}
   {%   endif %}
   {% endfor %}
   {{ services }}
+
+uwsgi_magnum_services: |-
+  {% set services = {} %}
+  {% for key, value in magnum_services.items() %}
+  {%   if (value['group'] in group_names) and
+         (('condition' not in value) or ('condition' in value and value['condition']))
+         and ('wsgi_app' in value and value['wsgi_app']) %}
+  {%     set _ = value.update(
+            {
+             'wsgi_venv': magnum_bin | dirname,
+             'uwsgi_uid': magnum_system_user_name,
+             'uwsgi_guid': magnum_system_group_name,
+             'uwsgi_processes': magnum_wsgi_processes,
+             'uwsgi_threads': magnum_wsgi_threads
+           }
+         ) %}
+  {%     set _ = services.update({key: value}) %}
+  {%   endif %}
+  {% endfor %}
+  {{ services }}
+

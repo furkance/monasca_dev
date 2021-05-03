@@ -19,5 +19,19 @@
     mode: 0640
     src: mon_mysql.sql.j2
   delegate_to: "{{ monasca_db_setup_host }}"
-  notify: Create monasca database schema
+  register: check_result
 
+- name: Create monasca database schema
+  community.mysql.mysql_db:
+    login_host: "{{ _oslodb_setup_endpoint | default(omit) }}"
+    login_port: "{{ _oslodb_setup_port | default(omit) }}"
+    login_user: "{{ monasca_galera_user }}"
+    login_password: "{{ monasca_container_mysql_password }}"
+    name: "{{ monasca_galera_database }}"
+    state: import
+    target: "/opt/mon_mysql.sql"
+  delegate_to: "{{ _oslodb_setup_host }}"
+  vars:
+    ansible_python_interpreter: "{{ _oslodb_ansible_python_interpreter }}"
+  when: check_result is succeeded
+  no_log: true

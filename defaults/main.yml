@@ -59,15 +59,18 @@ monasca_pip_install_args: "{{ pip_install_options | default('') }}"
 
 # Name of the virtual env to deploy into
 monasca_venv_tag: "{{ venv_tag | default('untagged') }}"
+#glance_bin farkli tanimlanmis, saharada da boyle ama
 monasca_bin: "/openstack/venvs/monasca-{{ monasca_venv_tag }}/bin"
 
 # Set the etc dir path where monasca is installed.
 #  This is used for role access to the db migrations.
 #  Example:
 #  monasca_etc_dir: "/usr/local/etc/monasca"
+#glance_etc_dir farkli
 monasca_etc_dir: "{{ monasca_bin | dirname }}/etc/monasca"
 
 # Enable/Disable Ceilometer
+# gerek var mi? satir 109'a kadar olan kisima
 monasca_ceilometer_enabled: False
 
 monasca_profiler_enabled: False
@@ -107,12 +110,14 @@ monasca_oslomsg_notify_vhost: "{{ monasca_oslomsg_rpc_vhost }}"
 monasca_oslomsg_amqp1_enabled: "{{ monasca_oslomsg_rpc_transport == 'amqp' }}"
 
 ## Database info
-monasca_db_setup_host: "{{ ('galera_all' in groups) | ternary(groups['galera_all'][0], 'localhost') }}"
+monasca_db_setup_host: "{{ openstack_db_setup_host | default('localhost') }}"
+monasca_db_setup_python_interpreter: "{{ openstack_db_setup_python_interpreter | default((monasca_db_setup_host == 'localhost') | ternary(ansible_playbook_python, ansible_python['executable'])) }}"
 monasca_galera_address: "{{ galera_address | default('127.0.0.1') }}"
 monasca_galera_database: monasca
 monasca_galera_user: monasca
 monasca_galera_use_ssl: "{{ galera_use_ssl | default(False) }}"
 monasca_galera_ssl_ca_cert: "{{ galera_ssl_ca_cert | default('/etc/ssl/certs/galera-ca.pem') }}"
+monasca_galera_port: 3306
 
 monasca_container_mysql_password: password
 
@@ -134,6 +139,7 @@ monasca_service_user_name: monasca
 monasca_service_project_name: service
 monasca_service_project_domain_id: default
 monasca_service_user_domain_id: default
+monasca_service_user_domain_name: Default
 monasca_service_version: v2.0
 monasca_agent_user_name: monasca-agent
 monasca_service_publicuri: "{{ monasca_service_publicuri_proto }}://{{ external_lb_vip_address }}:{{ monasca_service_port }}"
@@ -213,7 +219,7 @@ monasca_services:
     service_name: monasca-api
     init_config_overrides: "{{ monasca_api_init_overrides }}"
     execstarts: "{{ monasca_bin }}/monasca-api"
-    wsgi_app: "{{ monasca_use_uwsgi }}"
+    wsgi_app: True
     wsgi_name: monasca-api-wsgi
     uwsgi_overrides: "{{ monasca_api_uwsgi_ini_overrides }}"
     uwsgi_bind_address: "{{ monasca_api_bind_address }}"
@@ -221,7 +227,7 @@ monasca_services:
   monasca-persister:
     group: monasca_persister
     service_name: monasca-persister
-    execstarts: "{{ monasca_bin }}/python {{ monasca_bin }}/../lib/python3.6/site-packages/monasca_persister/persister.py --config-file /etc/monasca/persister.conf"
+    execstarts: "{{ monasca_bin }}/python {{ monasca_bin }}/../lib/python3.8/site-packages/monasca_persister/persister.py --config-file /etc/monasca/persister.conf"
     init_config_overrides: "{{ monasca_persister_init_overrides }}"
   monasca-thresh:
     group: monasca_thresh
@@ -248,6 +254,7 @@ monasca_persister_logging_config_overrides: {}
 monasca_thresh_config_overrides: {}
 monasca_notification_config_overrides: {}
 monasca_api_uwsgi_ini_overrides: {}
+monasca_keystone_auth_default_policy: []
 
 
 ## InfluxDB info

@@ -27,10 +27,12 @@
 
 - import_tasks: db_setup.yml
   when:
-    - "monasca_services['monasca-api']['group'] in group_names"
-    - "inventory_hostname == ((groups[monasca_services['monasca-api']['group']]| intersect(ansible_play_hosts)) | list)[0]"
+    - "_monasca_is_first_play_host"
   vars:
     _oslodb_setup_host: "{{ monasca_db_setup_host }}"
+    _oslodb_ansible_python_interpreter: "{{ monasca_db_setup_python_interpreter }}"
+    _oslodb_setup_endpoint: "{{ monasca_galera_address }}"
+    _oslodb_setup_port: "{{ monasca_galera_port }}"
     _oslodb_databases:
       - name: "{{ monasca_galera_database }}"
         users:
@@ -101,6 +103,11 @@
 - import_tasks: monasca_copy_mysql_schema.yml
   tags:
     - monasca-config
+  vars:
+    _oslodb_setup_host: "{{ monasca_db_setup_host }}"
+    _oslodb_ansible_python_interpreter: "{{ monasca_db_setup_python_interpreter }}"
+    _oslodb_setup_endpoint: "{{ monasca_galera_address }}"
+    _oslodb_setup_port: "{{ monasca_galera_port }}"
 
 - import_tasks: monasca_kafka_setup.yml
   tags:
@@ -137,7 +144,7 @@
       - name: "{{ monasca_service_name }}"
         type: "{{ monasca_service_type }}"
         description: "{{ monasca_service_description }}"
-  when: inventory_hostname == groups['monasca_all'][0]
+  when: _monasca_is_first_play_host
   tags:
     - monasca-config
 
