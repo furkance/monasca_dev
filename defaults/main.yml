@@ -121,7 +121,7 @@ monasca_galera_port: 3306
 
 monasca_container_mysql_password: password
 
-monasca_role_name: admin
+monasca_role_name: monasca-user
 monasca_api_bind_address: "{{ openstack_service_bind_address | default('0.0.0.0') }}"
 monasca_api_service_port: 8070
 
