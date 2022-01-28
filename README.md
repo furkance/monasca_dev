@@ -1,1 +1,1 @@
-# B3LAB_private_dev
+OpenStak Ansible role for Monasca service
