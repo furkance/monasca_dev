@@ -1,1 +1,1 @@
-# B3LAB_private_dev
+OpenStack Ansible role for Monasca service (dev purposes on train)
